@@ -3,6 +3,11 @@
 #include "quicklz.h"
 #include <sstream>
 #include "timers.h"
+
+#include <unistd.h>
+
+#include <iostream>
+
 namespace DBoW3{
 // --------------------------------------------------------------------------
 
@@ -1049,26 +1054,25 @@ void Vocabulary::save(const std::string &filename,  bool binary_compressed) cons
 
 void Vocabulary::load(const std::string &filename)
 {
+
     //check first if it is a binary file
     std::ifstream ifile(filename,std::ios::binary);
     if (!ifile) throw std::runtime_error("Vocabulary::load Could not open file :"+filename+" for reading");
     uint64_t sig;//magic number describing the file
     ifile.read((char*)&sig,sizeof(sig));
     if (sig==88877711233) {//it is a binary file. read from it
-        ifile.seekg(0,std::ios::beg);
-        fromStream(ifile);
-
-    }
-    else{
-        if ( filename.find(".txt")!=std::string::npos){
-            //read from a text file (used in ORBSLAM2)
-            load_fromtxt(filename);
-        }
-        else{
+      ifile.seekg(0,std::ios::beg);
+      fromStream(ifile);
+    } else{
+      if ( filename.find(".txt")!=std::string::npos){
+        //read from a text file (used in ORBSLAM2)
+        load_fromtxt(filename);
+      }
+      else{
         cv::FileStorage fs(filename.c_str(), cv::FileStorage::READ);
         if(!fs.isOpened()) throw std::string("Could not open file ") + filename;
         this->load(fs);
-        }
+      }
     }
 }
 
@@ -1372,9 +1376,8 @@ void Vocabulary::fromStream(  std::istream &str )   throw(std::exception){
 
 
 
-void Vocabulary::load(const cv::FileStorage &fs,
-  const std::string &name)
-{
+void Vocabulary::load(const cv::FileStorage &fs, const std::string &name){
+
   m_words.clear();
   m_nodes.clear();
 
@@ -1392,7 +1395,7 @@ void Vocabulary::load(const cv::FileStorage &fs,
 
   m_nodes.resize(fn.size() + 1); // +1 to include root
   m_nodes[0].id = 0;
-
+  
   for(unsigned int i = 0; i < fn.size(); ++i)
   {
     NodeId nid = (int)fn[i]["nodeId"];
@@ -1404,8 +1407,14 @@ void Vocabulary::load(const cv::FileStorage &fs,
     m_nodes[nid].parent = pid;
     m_nodes[nid].weight = weight;
     m_nodes[pid].children.push_back(nid);
-
+    
     DescManip::fromString(m_nodes[nid].descriptor, d);
+
+    if (i==0){
+      unsigned int nap = 1000;
+      usleep(nap);
+    }
+    // std::cout << "[Debugging] nid: " << nid << " - pid: " << pid  << " - weights: " << weight << std::endl;
   }
 
   // words

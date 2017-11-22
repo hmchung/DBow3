@@ -19,11 +19,20 @@ class CmdLineParser{int argc; char **argv; public: CmdLineParser(int _argc,char 
 vector<cv::Mat> readFeaturesFromFile(string filename){
 vector<cv::Mat> features;
     //test it is not created
-    std::ifstream ifile(filename);
-    if (!ifile.is_open()){cerr<<"could not open input file"<<endl;exit(0);}
+    std::ifstream ifile;
+    ifile.open(filename);
+    if (!ifile.is_open()){
+        cerr<<"could not open input file"<<endl;
+        exit(0);
+    }
     uint32_t size;
+
     ifile.read((char*)&size,sizeof(size));
+    
+    cout << "reach here" << endl;
+
     features.resize(size);
+
     for(size_t i=0;i<size;i++){
 
         uint32_t cols,rows,type;

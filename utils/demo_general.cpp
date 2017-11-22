@@ -128,9 +128,9 @@ void testDatabase(const  vector<cv::Mat > &features)
     cout << "Creating a small database..." << endl;
 
     // load the vocabulary from disk
-    Vocabulary voc("small_voc.yml.gz");
+    DBoW3::Vocabulary voc("small_voc.yml.gz");
 
-    Database db(voc, false, 0); // false = do not use direct index
+    DBoW3::Database db(voc, false, 0); // false = do not use direct index
     // (so ignore the last param)
     // The direct index is useful if we want to retrieve the features that
     // belong to some vocabulary node.
